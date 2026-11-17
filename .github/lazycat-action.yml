@@ -22,10 +22,20 @@ images:
   - id: mirobody
     target: service
     service: mirobody
-    source: thetahealth4mirobody/mirobody
+    source: docker.io/thetahealth4mirobody/mirobody
     channel: stable
     sort: semver
     tag_regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    delivery:
+      mode: mirror
+      require_digest_match: true
+  - id: pg
+    target: service
+    service: pg
+    source: docker.io/pgvector/pgvector
+    channel: stable
+    sort: semver
+    tag_regex: '^0\.8\.6-pg17-trixie$'
     delivery:
       mode: mirror
       require_digest_match: true
@@ -37,4 +47,4 @@ stores:
     enabled: true
     skip_if_version_exists: true
     name: Mirobody
-    summary: 自托管健康数字分身：汇聚体检报告、穿戴设备与基因数据，统一指标与单位，数值可溯源，内置 MCP 服务。需自备一个 LLM API Key。
+    summary: 自托管健康记录：化验单、可穿戴设备与基因数据汇成一份完整档案，指标标准化（LOINC）且可溯源，内置 AI 助手与 MCP 服务器。

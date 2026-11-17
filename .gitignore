@@ -1,0 +1,5 @@
+dist/
+*.lpk
+.lzc-cli-cache/
+.lazycat-release.env
+icon.svg
