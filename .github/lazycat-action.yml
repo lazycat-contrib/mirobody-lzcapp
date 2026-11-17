@@ -1,0 +1,40 @@
+version: 1
+
+project:
+  root: .
+  build_config: lzc-build.yml
+  package_file: package.yml
+  output: dist/application.lpk
+  target_arch: amd64
+
+update:
+  strategy: publish
+  allow_downgrade: false
+  version_source:
+    type: image
+    image: mirobody
+
+build:
+  toolchains: []
+  run_buildscript: false
+
+images:
+  - id: mirobody
+    target: service
+    service: mirobody
+    source: thetahealth4mirobody/mirobody
+    channel: stable
+    sort: semver
+    tag_regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    delivery:
+      mode: mirror
+      require_digest_match: true
+
+stores:
+  official:
+    enabled: false
+  private:
+    enabled: true
+    skip_if_version_exists: true
+    name: Mirobody
+    summary: 自托管健康数字分身：汇聚体检报告、穿戴设备与基因数据，统一指标与单位，数值可溯源，内置 MCP 服务。需自备一个 LLM API Key。

@@ -1,0 +1,104 @@
+application:
+  subdomain: mirobody
+  upstreams:
+    - location: /
+      backend: http://mirobody:18060/
+  public_path:
+    - /
+services:
+  pg:
+    # upstream: pgvector/pgvector:0.8.6-pg17-trixie (pinned by upstream compose.yaml)
+    image: docker.1ms.run/pgvector/pgvector:0.8.6-pg17-trixie
+    shm_size: 256mb
+    environment:
+      - POSTGRES_USER=holistic_user
+      - POSTGRES_DB=holistic_db
+      - POSTGRES_PASSWORD={{ stable_secret "mirobody_pg_password" }}
+    binds:
+      - /lzcapp/var/pg:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U holistic_user -d holistic_db
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    mem_limit: 1g
+
+  mirobody:
+    # upstream: thetahealth4mirobody/mirobody:1.6.1 (Docker Hub, follows upstream release tags)
+    image: docker.1ms.run/thetahealth4mirobody/mirobody:1.6.1
+    user: "10001:10001"
+    environment:
+      - ENV=localdb
+      - PYTHONUNBUFFERED=1
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=18060
+      - SEED_DEMO_DATA=true
+      - PG_HOST=pg
+      - PG_PORT=5432
+      - PG_USER=holistic_user
+      - PG_DBNAME=holistic_db
+      - PG_PASSWORD={{ stable_secret "mirobody_pg_password" }}
+      - PG_ENCRYPTION_KEY={{ stable_secret "mirobody_pg_encryption_key" }}
+      - CONFIG_ENCRYPTION_KEY={{ stable_secret "mirobody_config_encryption_key" }}
+      - JWT_KEY={{ stable_secret "mirobody_jwt_key" }}
+      - SETUP_TOKEN={{ stable_secret "mirobody_setup_token" }}
+      - NO_PROXY=pg,localhost,127.0.0.1
+    binds:
+      - /lzcapp/var/upload:/app/.theta/mcp/upload
+    depends_on:
+      - pg
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -fsS
+        - http://127.0.0.1:18060/api/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    mem_limit: 2g
+
+  mirobody_worker:
+    image: docker.1ms.run/thetahealth4mirobody/mirobody:1.6.1
+    user: "10001:10001"
+    command: mirobody worker
+    environment:
+      - ENV=localdb
+      - PYTHONUNBUFFERED=1
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=18060
+      - SEED_DEMO_DATA=true
+      - PG_HOST=pg
+      - PG_PORT=5432
+      - PG_USER=holistic_user
+      - PG_DBNAME=holistic_db
+      - PG_PASSWORD={{ stable_secret "mirobody_pg_password" }}
+      - PG_ENCRYPTION_KEY={{ stable_secret "mirobody_pg_encryption_key" }}
+      - CONFIG_ENCRYPTION_KEY={{ stable_secret "mirobody_config_encryption_key" }}
+      - JWT_KEY={{ stable_secret "mirobody_jwt_key" }}
+      - SETUP_TOKEN={{ stable_secret "mirobody_setup_token" }}
+      - NO_PROXY=pg,localhost,127.0.0.1
+    binds:
+      - /lzcapp/var/upload:/app/.theta/mcp/upload
+    depends_on:
+      - pg
+      - mirobody
+    healthcheck:
+      test:
+        - CMD
+        - "true"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    mem_limit: 2g
+usage: |
+  Mirobody 是自托管健康数字分身：汇聚体检报告（PDF/照片）、穿戴设备与基因数据，统一指标名称与单位，每个数值可追溯到来源，并内置个人 MCP 服务供 Claude Code / Codex / Cursor 等查询你的记录。
+  登录：演示账号 you@mirobody.ai / mom@mirobody.ai，邮箱验证码均为 111111（合成演示数据，SEED_DEMO_DATA=true）。注册自己的账号用邮箱 + 密码注册（部署不发送邮件，故自注册账号仅密码登录可用）。正式使用前请在「关爱圈」确认家人档案共享。
+  模型配置（必须）：打开 设置 → 模型设置（/setup?token=<SETUP_TOKEN>），填入你的 LLM API Key（OpenRouter / DashScope / Gemini / OpenAI / Anthropic / DeepSeek 任一）；不填 Key 无法做文档识别与问答，登录和浏览演示数据不需要 Key。SETUP_TOKEN 由平台稳定密钥生成，重装不变，可在部署参数说明中查看。
+  数据持久化在 /lzcapp/var（Postgres 与上传文件）；上游 llama.cpp 本地模型 profile 未打包（需要 GPU 或 8GB+ 内存专用容器），请使用云端模型 Key。
+  请勿在应用内执行自更新；版本由打包仓库 GitHub Actions 跟随上游自动更新。
