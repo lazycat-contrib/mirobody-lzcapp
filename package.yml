@@ -1,7 +1,7 @@
 package: community.lazycat.app.mirobody
 version: 1.6.1
 name: Mirobody
-description: "Mirror your body in data: a self-hosted health record built from lab reports, wearables and genetics, with every number traced to its source and a built-in MCP server. Run with your own LLM API key (Apache-2.0)."
+description: "Self-hosted health record built from lab reports, wearables and genetics: every number standardized (LOINC) and traced to its source, an AI agent to query your data, and a built-in MCP server. Run with your own model API key (Apache-2.0)."
 min_os_version: 1.5.0
 homepage: https://github.com/thetahealth/mirobody
 author: thetahealth
@@ -9,16 +9,13 @@ license: Apache-2.0
 locales:
   zh:
     name: "Mirobody"
-    description: "你的健康数字分身：自托管健康记录，汇聚体检报告、穿戴设备与基因数据，每个数值可追溯到来源，内置 MCP 服务。需自备一个 LLM API Key（Apache-2.0）。"
+    description: "自托管健康记录：化验单、可穿戴设备与基因数据汇成一份完整档案，指标名称标准化（LOINC）且每个数值可溯源，内置 AI 助手查询你的数据，并自带 MCP 服务器。使用你自己的模型 API Key（Apache-2.0）。"
   zh_CN:
     name: "Mirobody"
-    description: "你的健康数字分身：自托管健康记录，汇聚体检报告、穿戴设备与基因数据，每个数值可追溯到来源，内置 MCP 服务。需自备一个 LLM API Key（Apache-2.0）。"
+    description: "自托管健康记录：化验单、可穿戴设备与基因数据汇成一份完整档案，指标名称标准化（LOINC）且每个数值可溯源，内置 AI 助手查询你的数据，并自带 MCP 服务器。使用你自己的模型 API Key（Apache-2.0）。"
   en:
     name: "Mirobody"
-    description: "Mirror your body in data: a self-hosted health record built from lab reports, wearables and genetics, with every number traced to its source and a built-in MCP server. Run with your own LLM API key (Apache-2.0)."
+    description: "Self-hosted health record built from lab reports, wearables and genetics: every number standardized (LOINC) and traced to its source, an AI agent to query your data, and a built-in MCP server. Run with your own model API key (Apache-2.0)."
 permissions:
   required:
     - net.internet
-manifest: ./lzc-manifest.yml
-pkgout: ./dist
-icon: ./icon.png
